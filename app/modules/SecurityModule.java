@@ -17,6 +17,7 @@ import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.oauth.client.FacebookClient;
+import org.pac4j.oauth.client.Google2Client;
 import org.pac4j.oauth.client.TwitterClient;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -41,8 +42,6 @@ public class SecurityModule extends AbstractModule {
 
     private final Configuration configuration;
 
-    private static class MyPac4jRoleHandler implements Pac4jRoleHandler { }
-
     public SecurityModule(final Environment environment, final Configuration configuration) {
         this.configuration = configuration;
     }
@@ -61,18 +60,26 @@ public class SecurityModule extends AbstractModule {
 
         // OAuth
         final FacebookClient facebookClient = new FacebookClient(fbId, fbSecret);
-        final TwitterClient twitterClient = new TwitterClient("HVSQGAw2XmiwcKOTvZFbQ",
-                "FSiO9G9VRR4KCuksky0kgGuo8gAVndYymr4Nl7qc8AA");
+        final TwitterClient twitterClient = new TwitterClient("39Ugjg0g9l1w3UniUB2Wx68ae",
+                "uvKTPQvfwsZ8JyAYptGCxVuFGYOQcJ9JvQVTPwr75B3W4PpUAP");
+//        twitterClient.setCallbackUrl(baseUrl + "/callback");
+
         // HTTP
+        final Google2Client google2Client = new Google2Client();
+        google2Client.setKey("682158564078-ndcjc83kp5v7vudikqu1fudtkcs2odeb.apps.googleusercontent.com");
+        google2Client.setSecret("gLB2U7LPYBFTxqYtyG81AhLH");
+//        google2Client.setCallbackUrl("http://localhost:9001/callback");
+        google2Client.setScope(Google2Client.Google2Scope.EMAIL_AND_PROFILE);
+
         final FormClient formClient = new FormClient(baseUrl + "/loginForm", new SimpleTestUsernamePasswordAuthenticator());
         final IndirectBasicAuthClient indirectBasicAuthClient = new IndirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
 
         // CAS
         // final CasOAuthWrapperClient casClient = new CasOAuthWrapperClient("this_is_the_key2", "this_is_the_secret2", "http://localhost:8080/cas2/oauth2.0");
         // casClient.setName("CasClient");
-        final CasConfiguration casConfiguration = new CasConfiguration("https://casserverpac4j.herokuapp.com/login");
-        casConfiguration.setLogoutHandler(new PlayCacheLogoutHandler(getProvider(CacheApi.class)));
-        final CasClient casClient = new CasClient(casConfiguration);
+//        final CasConfiguration casConfiguration = new CasConfiguration("https://casserverpac4j.herokuapp.com/login");
+//        casConfiguration.setLogoutHandler(new PlayCacheLogoutHandler(getProvider(CacheApi.class)));
+//        final CasClient casClient = new CasClient(casConfiguration);
 
         // casClient.setGateway(true);
         /*final CasProxyReceptor casProxyReceptor = new CasProxyReceptor();
@@ -80,21 +87,21 @@ public class SecurityModule extends AbstractModule {
         casClient.setCasProxyReceptor(casProxyReceptor);*/
 
         // SAML
-        final SAML2ClientConfiguration cfg = new SAML2ClientConfiguration("resource:samlKeystore.jks",
-                "pac4j-demo-passwd", "pac4j-demo-passwd", "resource:openidp-feide.xml");
-        cfg.setMaximumAuthenticationLifetime(3600);
-        cfg.setServiceProviderEntityId("urn:mace:saml:pac4j.org");
-        cfg.setServiceProviderMetadataPath(new File("target", "sp-metadata.xml").getAbsolutePath());
-        final SAML2Client saml2Client = new SAML2Client(cfg);
+//        final SAML2ClientConfiguration cfg = new SAML2ClientConfiguration("resource:samlKeystore.jks",
+//                "pac4j-demo-passwd", "pac4j-demo-passwd", "resource:openidp-feide.xml");
+//        cfg.setMaximumAuthenticationLifetime(3600);
+//        cfg.setServiceProviderEntityId("urn:mace:saml:pac4j.org");
+//        cfg.setServiceProviderMetadataPath(new File("target", "sp-metadata.xml").getAbsolutePath());
+//        final SAML2Client saml2Client = new SAML2Client(cfg);
 
         // OpenID Connect
-        final OidcConfiguration oidcConfiguration = new OidcConfiguration();
-        oidcConfiguration.setClientId("343992089165-i1es0qvej18asl33mvlbeq750i3ko32k.apps.googleusercontent.com");
-        oidcConfiguration.setSecret("unXK_RSCbCXLTic2JACTiAo9");
-        oidcConfiguration.setDiscoveryURI("https://accounts.google.com/.well-known/openid-configuration");
-        oidcConfiguration.addCustomParam("prompt", "consent");
-        final OidcClient oidcClient = new OidcClient(oidcConfiguration);
-        oidcClient.addAuthorizationGenerator(profile -> profile.addRole("ROLE_ADMIN"));
+//        final OidcConfiguration oidcConfiguration = new OidcConfiguration();
+//        oidcConfiguration.setClientId("343992089165-i1es0qvej18asl33mvlbeq750i3ko32k.apps.googleusercontent.com");
+//        oidcConfiguration.setSecret("unXK_RSCbCXLTic2JACTiAo9");
+//        oidcConfiguration.setDiscoveryURI("https://accounts.google.com/.well-known/openid-configuration");
+//        oidcConfiguration.addCustomParam("prompt", "consent");
+//        final OidcClient oidcClient = new OidcClient(oidcConfiguration);
+//        oidcClient.addAuthorizationGenerator(profile -> profile.addRole("ROLE_ADMIN"));
 
         // REST authent with JWT for a token passed in the url as the token parameter
         ParameterClient parameterClient = new ParameterClient("token", new JwtAuthenticator(JWT_SALT));
@@ -105,7 +112,7 @@ public class SecurityModule extends AbstractModule {
         final DirectBasicAuthClient directBasicAuthClient = new DirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
 
         final Clients clients = new Clients(baseUrl + "/callback", facebookClient, twitterClient, formClient,
-                indirectBasicAuthClient, casClient, saml2Client, oidcClient, parameterClient, directBasicAuthClient,
+                indirectBasicAuthClient, /*casClient, *//*saml2Client,*/ /*oidcClient,*/ parameterClient, directBasicAuthClient, google2Client,
                 new AnonymousClient()); // , casProxyReceptor);
 
         final Config config = new Config(clients);
@@ -123,5 +130,8 @@ public class SecurityModule extends AbstractModule {
         final ApplicationLogoutController logoutController = new ApplicationLogoutController();
         logoutController.setDefaultUrl("/?defaulturlafterlogout");
         bind(ApplicationLogoutController.class).toInstance(logoutController);
+    }
+
+    private static class MyPac4jRoleHandler implements Pac4jRoleHandler {
     }
 }
