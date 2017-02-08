@@ -1,44 +1,24 @@
 package modules;
 
-import be.objectify.deadbolt.java.cache.HandlerCache;
+//import be.objectify.deadbolt.java.cache.HandlerCache;
+
 import com.google.inject.AbstractModule;
-import controllers.CustomAuthorizer;
 import controllers.DemoHttpActionAdapter;
-import org.pac4j.cas.client.CasClient;
-import org.pac4j.cas.config.CasConfiguration;
-import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.config.Config;
-import org.pac4j.http.client.direct.DirectBasicAuthClient;
-import org.pac4j.http.client.direct.ParameterClient;
-import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
-import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
-import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.oauth.client.FacebookClient;
 import org.pac4j.oauth.client.Google2Client;
 import org.pac4j.oauth.client.TwitterClient;
-import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.ApplicationLogoutController;
 import org.pac4j.play.CallbackController;
-import org.pac4j.play.cas.logout.PlayCacheLogoutHandler;
-import org.pac4j.play.deadbolt2.Pac4jHandlerCache;
 import org.pac4j.play.deadbolt2.Pac4jRoleHandler;
 import org.pac4j.play.store.PlayCacheStore;
 import org.pac4j.play.store.PlaySessionStore;
-import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.client.SAML2ClientConfiguration;
 import play.Configuration;
 import play.Environment;
-import play.cache.CacheApi;
-
-import java.io.File;
 
 public class SecurityModule extends AbstractModule {
-
-    public final static String JWT_SALT = "12345678901234567890123456789012";
 
     private final Configuration configuration;
 
@@ -48,8 +28,6 @@ public class SecurityModule extends AbstractModule {
 
     @Override
     protected void configure() {
-
-        bind(HandlerCache.class).to(Pac4jHandlerCache.class);
 
         bind(Pac4jRoleHandler.class).to(MyPac4jRoleHandler.class);
         bind(PlaySessionStore.class).to(PlayCacheStore.class);
@@ -62,62 +40,24 @@ public class SecurityModule extends AbstractModule {
         final FacebookClient facebookClient = new FacebookClient(fbId, fbSecret);
         final TwitterClient twitterClient = new TwitterClient("39Ugjg0g9l1w3UniUB2Wx68ae",
                 "uvKTPQvfwsZ8JyAYptGCxVuFGYOQcJ9JvQVTPwr75B3W4PpUAP");
-//        twitterClient.setCallbackUrl(baseUrl + "/callback");
+        twitterClient.setCallbackUrl(baseUrl + "/callback1");
+        facebookClient.setCallbackUrl(baseUrl + "/callback1");
 
         // HTTP
         final Google2Client google2Client = new Google2Client();
-        google2Client.setKey("682158564078-ndcjc83kp5v7vudikqu1fudtkcs2odeb.apps.googleusercontent.com");
-        google2Client.setSecret("gLB2U7LPYBFTxqYtyG81AhLH");
-//        google2Client.setCallbackUrl("http://localhost:9001/callback");
+        google2Client.setKey("137297527302-hdcf3hdi5hkp2p83sbmr8k4o82rs82uh.apps.googleusercontent.com");
+        google2Client.setSecret("pDkiCTgjxk_8pIgIbja4qsVr");
+        google2Client.setCallbackUrl(baseUrl + "/callback1");
         google2Client.setScope(Google2Client.Google2Scope.EMAIL_AND_PROFILE);
 
-        final FormClient formClient = new FormClient(baseUrl + "/loginForm", new SimpleTestUsernamePasswordAuthenticator());
-        final IndirectBasicAuthClient indirectBasicAuthClient = new IndirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
+//        final FormClient formClient = new FormClient(baseUrl + "/loginForm", new SimpleTestUsernamePasswordAuthenticator());
+//        final IndirectBasicAuthClient indirectBasicAuthClient = new IndirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
 
-        // CAS
-        // final CasOAuthWrapperClient casClient = new CasOAuthWrapperClient("this_is_the_key2", "this_is_the_secret2", "http://localhost:8080/cas2/oauth2.0");
-        // casClient.setName("CasClient");
-//        final CasConfiguration casConfiguration = new CasConfiguration("https://casserverpac4j.herokuapp.com/login");
-//        casConfiguration.setLogoutHandler(new PlayCacheLogoutHandler(getProvider(CacheApi.class)));
-//        final CasClient casClient = new CasClient(casConfiguration);
-
-        // casClient.setGateway(true);
-        /*final CasProxyReceptor casProxyReceptor = new CasProxyReceptor();
-        casProxyReceptor.setCallbackUrl("http://localhost:9000/casProxyCallback");
-        casClient.setCasProxyReceptor(casProxyReceptor);*/
-
-        // SAML
-//        final SAML2ClientConfiguration cfg = new SAML2ClientConfiguration("resource:samlKeystore.jks",
-//                "pac4j-demo-passwd", "pac4j-demo-passwd", "resource:openidp-feide.xml");
-//        cfg.setMaximumAuthenticationLifetime(3600);
-//        cfg.setServiceProviderEntityId("urn:mace:saml:pac4j.org");
-//        cfg.setServiceProviderMetadataPath(new File("target", "sp-metadata.xml").getAbsolutePath());
-//        final SAML2Client saml2Client = new SAML2Client(cfg);
-
-        // OpenID Connect
-//        final OidcConfiguration oidcConfiguration = new OidcConfiguration();
-//        oidcConfiguration.setClientId("343992089165-i1es0qvej18asl33mvlbeq750i3ko32k.apps.googleusercontent.com");
-//        oidcConfiguration.setSecret("unXK_RSCbCXLTic2JACTiAo9");
-//        oidcConfiguration.setDiscoveryURI("https://accounts.google.com/.well-known/openid-configuration");
-//        oidcConfiguration.addCustomParam("prompt", "consent");
-//        final OidcClient oidcClient = new OidcClient(oidcConfiguration);
-//        oidcClient.addAuthorizationGenerator(profile -> profile.addRole("ROLE_ADMIN"));
-
-        // REST authent with JWT for a token passed in the url as the token parameter
-        ParameterClient parameterClient = new ParameterClient("token", new JwtAuthenticator(JWT_SALT));
-        parameterClient.setSupportGetRequest(true);
-        parameterClient.setSupportPostRequest(false);
-
-        // basic auth
-        final DirectBasicAuthClient directBasicAuthClient = new DirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
-
-        final Clients clients = new Clients(baseUrl + "/callback", facebookClient, twitterClient, formClient,
-                indirectBasicAuthClient, /*casClient, *//*saml2Client,*/ /*oidcClient,*/ parameterClient, directBasicAuthClient, google2Client,
-                new AnonymousClient()); // , casProxyReceptor);
+        final Clients clients = new Clients(facebookClient, twitterClient, google2Client, new AnonymousClient());
 
         final Config config = new Config(clients);
-        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer<>("ROLE_ADMIN"));
-        config.addAuthorizer("custom", new CustomAuthorizer());
+//        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer<>("ROLE_ADMIN"));
+//        config.addAuthorizer("custom", new CustomAuthorizer());
         config.setHttpActionAdapter(new DemoHttpActionAdapter());
         bind(Config.class).toInstance(config);
 

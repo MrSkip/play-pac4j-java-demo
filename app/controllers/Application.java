@@ -23,6 +23,7 @@ import play.mvc.Result;
 import play.twirl.api.Content;
 
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public class Application extends Controller {
 
@@ -51,7 +52,8 @@ public class Application extends Controller {
         return ok(views.html.protectedIndex.render(getProfiles()));
     }
 
-    //@Secure(clients = "FacebookClient")
+
+    @Secure(clients = "FacebookClient")
     public Result facebookIndex() {
         return protectedIndexView();
     }
@@ -66,8 +68,13 @@ public class Application extends Controller {
         return protectedIndexView();
     }
 
-    @Secure(clients = "TwitterClient,FacebookClient")
+    @Secure(clients = "TwitterClient")
     public Result twitterIndex() {
+        return protectedIndexView();
+    }
+
+    @Secure(clients = "Google2Client")
+    public Result googleIndex() {
         return protectedIndexView();
     }
 
@@ -76,78 +83,6 @@ public class Application extends Controller {
         return protectedIndexView();
     }
 
-    //@Secure(clients = "FormClient")
-    @SubjectPresent(handlerKey = "FormClient", forceBeforeAuthCheck = true)
-    public Result formIndex() {
-        return protectedIndexView();
-    }
-
-    // Setting the isAjax parameter is no longer necessary as AJAX requests are automatically detected:
-    // a 401 error response will be returned instead of a redirection to the login url.
-    @Secure(clients = "FormClient")
-    public Result formIndexJson() {
-        Content content = views.html.protectedIndex.render(getProfiles());
-        JsonContent jsonContent = new JsonContent(content.body());
-        return ok(jsonContent);
-    }
-
-    @Secure(clients = "IndirectBasicAuthClient")
-    public Result basicauthIndex() {
-        return protectedIndexView();
-    }
-
-    @Secure(clients = "DirectBasicAuthClient,ParameterClient")
-    public Result dbaIndex() {
-        return protectedIndexView();
-    }
-
-    @Secure(clients = "CasClient")
-    public Result casIndex() {
-        /*final CommonProfile profile = getProfiles().get(0);
-        final String service = "http://localhost:8080/proxiedService";
-        String proxyTicket = null;
-        if (profile instanceof CasProxyProfile) {
-            final CasProxyProfile proxyProfile = (CasProxyProfile) profile;
-            proxyTicket = proxyProfile.getProxyTicketFor(service);
-        }
-        return ok(views.html.casProtectedIndex.render(profile, service, proxyTicket));*/
-        return protectedIndexView();
-    }
-
-    @Secure(clients = "SAML2Client")
-    public Result samlIndex() {
-        return protectedIndexView();
-    }
-
-    @Secure(clients = "OidcClient")
-    public Result oidcIndex() {
-        return protectedIndexView();
-    }
-
-    //@Secure(clients = "ParameterClient")
-    public Result restJwtIndex() {
-        return protectedIndexView();
-    }
-
-    //@Secure(clients = "AnonymousClient", authorizers = "csrfCheck")
-    public Result csrfIndex() {
-        return ok(views.html.csrf.render(getProfiles()));
-    }
-
-    public Result loginForm() throws TechnicalException {
-        final FormClient formClient = (FormClient) config.getClients().findClient("FormClient");
-        return ok(views.html.loginForm.render(formClient.getCallbackUrl()));
-    }
-
-    public Result jwt() {
-        final List<CommonProfile> profiles = getProfiles();
-        final JwtGenerator generator = new JwtGenerator(SecurityModule.JWT_SALT);
-        String token = "";
-        if (CommonHelper.isNotEmpty(profiles)) {
-            token = generator.generate(profiles.get(0));
-        }
-        return ok(views.html.jwt.render(token));
-    }
 
     public Result forceLogin() {
         final PlayWebContext context = new PlayWebContext(ctx(), playSessionStore);

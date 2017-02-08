@@ -7,6 +7,9 @@ import play.mvc.Result;
 
 import static play.mvc.Results.*;
 
+/**
+ * Add if
+ */
 public class DemoHttpActionAdapter extends DefaultHttpActionAdapter {
 
     @Override
