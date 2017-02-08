@@ -1,9 +1,6 @@
 package controllers;
 
-import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.google.inject.Inject;
-import model.JsonContent;
-import modules.SecurityModule;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -12,18 +9,13 @@ import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.core.util.CommonHelper;
-import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.jwt.profile.JwtGenerator;
 import org.pac4j.play.PlayWebContext;
 import org.pac4j.play.java.Secure;
 import org.pac4j.play.store.PlaySessionStore;
 import play.mvc.Controller;
 import play.mvc.Result;
-import play.twirl.api.Content;
 
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 public class Application extends Controller {
 

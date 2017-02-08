@@ -1,7 +1,5 @@
 package modules;
 
-//import be.objectify.deadbolt.java.cache.HandlerCache;
-
 import com.google.inject.AbstractModule;
 import controllers.DemoHttpActionAdapter;
 import org.pac4j.core.client.Clients;
@@ -28,36 +26,28 @@ public class SecurityModule extends AbstractModule {
 
     @Override
     protected void configure() {
-
-        bind(Pac4jRoleHandler.class).to(MyPac4jRoleHandler.class);
         bind(PlaySessionStore.class).to(PlayCacheStore.class);
 
-        final String fbId = configuration.getString("fbId");
+        final String callback = configuration.getString("_callback");
+
+        final String fbKey = configuration.getString("fbKey");
         final String fbSecret = configuration.getString("fbSecret");
-        final String baseUrl = configuration.getString("baseUrl");
 
-        // OAuth
-        final FacebookClient facebookClient = new FacebookClient(fbId, fbSecret);
-        final TwitterClient twitterClient = new TwitterClient("39Ugjg0g9l1w3UniUB2Wx68ae",
-                "uvKTPQvfwsZ8JyAYptGCxVuFGYOQcJ9JvQVTPwr75B3W4PpUAP");
-        twitterClient.setCallbackUrl(baseUrl + "/callback1");
-        facebookClient.setCallbackUrl(baseUrl + "/callback1");
+        final String twitterKey = configuration.getString("twitterKey");
+        final String twitterSecret = configuration.getString("twitterSecret");
 
-        // HTTP
-        final Google2Client google2Client = new Google2Client();
-        google2Client.setKey("137297527302-hdcf3hdi5hkp2p83sbmr8k4o82rs82uh.apps.googleusercontent.com");
-        google2Client.setSecret("pDkiCTgjxk_8pIgIbja4qsVr");
-        google2Client.setCallbackUrl(baseUrl + "/callback1");
-        google2Client.setScope(Google2Client.Google2Scope.EMAIL_AND_PROFILE);
+        final String googleKey = configuration.getString("googleKey");
+        final String googleSecret = configuration.getString("googleSecret");
 
-//        final FormClient formClient = new FormClient(baseUrl + "/loginForm", new SimpleTestUsernamePasswordAuthenticator());
-//        final IndirectBasicAuthClient indirectBasicAuthClient = new IndirectBasicAuthClient(new SimpleTestUsernamePasswordAuthenticator());
+        // OAuth 2
+        final FacebookClient facebookClient = new FacebookClient(fbKey, fbSecret);
+        final TwitterClient twitterClient = new TwitterClient(twitterKey, twitterSecret);
+        final Google2Client google2Client = new Google2Client(googleKey, googleSecret);
 
-        final Clients clients = new Clients(facebookClient, twitterClient, google2Client, new AnonymousClient());
+        final Clients clients = new Clients( callback, facebookClient, twitterClient, google2Client, new AnonymousClient());
 
         final Config config = new Config(clients);
-//        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer<>("ROLE_ADMIN"));
-//        config.addAuthorizer("custom", new CustomAuthorizer());
+
         config.setHttpActionAdapter(new DemoHttpActionAdapter());
         bind(Config.class).toInstance(config);
 

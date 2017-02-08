@@ -26,10 +26,10 @@ GET         /protected/index.html             controllers.Application.protectedI
 GET         /forceLogin                       controllers.Application.forceLogin()
 #POST        /callback1                        controllers.Application.test()
 #GET         /callback1                        controllers.Application.test()
-GET         /callback1                         @org.pac4j.play.CallbackController.callback
-POST        /callback1                         @org.pac4j.play.CallbackController.callback
-GET         /casProxyCallback                 @org.pac4j.play.CallbackController.callback()
-POST        /casProxyCallback                 @org.pac4j.play.CallbackController.callback()
+GET         /callback1                        @org.pac4j.play.CallbackController.callback
+POST        /callback1                        @org.pac4j.play.CallbackController.callback
+#GET         /casProxyCallback                 @org.pac4j.play.CallbackController.callback()
+#POST        /casProxyCallback                 @org.pac4j.play.CallbackController.callback()
 GET         /logout                           @org.pac4j.play.ApplicationLogoutController.logout()
 
 # Map static resources from the /public folder to the /assets URL path
