@@ -16,6 +16,8 @@ import org.pac4j.play.store.PlaySessionStore;
 import play.Configuration;
 import play.Environment;
 
+import java.util.Map;
+
 public class SecurityModule extends AbstractModule {
 
     private final Configuration configuration;
@@ -27,8 +29,9 @@ public class SecurityModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(PlaySessionStore.class).to(PlayCacheStore.class);
+        Map<String, Object> map = configuration.getConfig("play").getConfig("server").getConfig("http").asMap();
 
-        final String callback = configuration.getString("_callback");
+        final String callback = /*"http://127.0.0.1" + ":" + map.get("port") + */configuration.getString("_callback");
 
         final String fbKey = configuration.getString("fbKey");
         final String fbSecret = configuration.getString("fbSecret");
@@ -44,7 +47,7 @@ public class SecurityModule extends AbstractModule {
         final TwitterClient twitterClient = new TwitterClient(twitterKey, twitterSecret);
         final Google2Client google2Client = new Google2Client(googleKey, googleSecret);
 
-        final Clients clients = new Clients( callback, facebookClient, twitterClient, google2Client, new AnonymousClient());
+        final Clients clients = new Clients(callback, facebookClient, twitterClient, google2Client, new AnonymousClient());
 
         final Config config = new Config(clients);
 
